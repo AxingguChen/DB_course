@@ -1,0 +1,70 @@
+import time
+import psycopg2 as psycopg2
+
+def print_message(title, message):
+    print("\033[1;35;40m--- " + title + ":" + str(message)+ "---\033[0m"+ "\n")
+
+
+def run_query_full_result(query):
+
+    # start sql connection
+    connection = psycopg2.connect(user="username",      # your username
+                                 password="password",   # your password
+                                 host="127.0.0.1",
+                                 port="5432",
+                                 database="dvdrental")  # database name
+    cursor = connection.cursor()
+
+    # Print PostgreSQL Connection properties
+    print (connection.get_dsn_parameters(), "\n")
+
+    start_time = time.time()
+    print("---query_pg time---" + str(time.time() - start_time))
+
+    start_time = time.time()
+    cursor.execute(query)
+
+    real_join_time = time.time() - start_time
+    print_message('query_pg running time ', real_join_time)
+
+    # row affected
+    count = cursor.rowcount
+    print(count, "Record selected successfully from table")
+
+    # enumerate result
+    results = cursor.fetchall()
+    for r in results:
+        print(r)
+
+    # finish connection
+    if (connection):
+        connection.commit()
+        cursor.close()
+        connection.close()
+        print("PostgreSQL connection is closed")
+
+    return
+
+def test1():
+
+    query = 'SELECT * FROM film LIMIT 5'
+
+    run_query_full_result(query)
+
+def test2():
+
+    query = 'SELECT film_id,title,rating FROM film LIMIT 5'
+
+    run_query_full_result(query)
+
+def test3():
+
+    query = 'SELECT * FROM payment LIMIT 5'
+
+    run_query_full_result(query)
+
+
+if __name__ == "__main__":
+    test1()
+    # test2()
+    # test3()
